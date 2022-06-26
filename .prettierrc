@@ -1,0 +1,15 @@
+{
+  "printWidth": 120,
+  "singleQuote": true,
+  "trailingComma": "none",
+  "tabWidth": 2,
+  "useTabs": false,
+  "htmlWhitespaceSensitivity": "ignore",
+  "arrowParens": "avoid",
+  "overrides": [{ "files": ".prettierrc", "options": { "parser": "json" } }],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "importOrderCaseInsensitive": true,
+  "importOrder": ["^@routes/(.*)$", "^[./]"],
+  "importOrderParserPlugins": ["typescript", "classProperties", "decorators-legacy"]
+}
