@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://xencio.com/" target="_blank"><img src="https://www.xencio.com/cn/wp-content/uploads/2020/10/Xencio-Logo-white-200.png" width="200" alt="Xencio Logo" /></a>
+  <a href="https://xencio.com/" target="_blank"><img src="https://www.xencio.com/cn/wp-content/uploads/2020/10/Xencio-Logo-200.png" width="200" alt="Xencio Logo" /></a>
 </p>
 
 ## 见知盒子介绍
@@ -27,9 +27,13 @@
 
 ## 支持
 
-目前分享了「中国银行」银企直连开源代码，如有关于其他银行银企直连接入、运行、维护等相关技术问题，可咨询见知盒子负责人。
+除接口服务外，见知团队还开发了web端针对不同银行直连配置信息的管理服务
 
-![Contact](contact.jpg)
+<img src="https://www.xencio.com/cn/wp-content/uploads/2022/06/banks.png" alt="web-list" />
+
+当前项目中包含了「中国银行」银企直连开源代码，如有关于其他银行银企直连接入、运行、维护等相关技术问题，可咨询见知盒子负责人。
+
+<img src="https://www.xencio.com/cn/wp-content/uploads/2022/06/qr.png" alt="QR" />
 
 ## License
 
