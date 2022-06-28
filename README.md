@@ -25,6 +25,8 @@
 
 <p><a href="https://xencio.com/" target="_blank">见知数据</a>是上海市「专精特新」企业，迄今为止累计处理超过30万亿金额的流水交易大数据，对手方超过100万家，已获35项软件著作权及专利、双软企业认证、ISO27001、27017安全认证，亦被评为上海市高新技术企业，毕马威中国2021领先金融科技50企业。</p>
 
+<img src="https://www.xencio.com/cn/wp-content/uploads/2021/07/xencio-public-wechat-qr.jpg">
+
 ## 支持
 
 除接口服务外，见知团队还开发了web端针对不同银行直连配置信息的管理服务
