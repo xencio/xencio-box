@@ -8,7 +8,6 @@ import * as path from 'path';
 
 import { AuthModule } from '@auth/auth.module';
 
-import config from './app.config';
 import { InitModuleException } from './app.exception';
 import { GlobalModule } from './global.module';
 import { DatabaseLogInterceptor } from './interceptor/log.interceptor';
@@ -22,7 +21,6 @@ import { RoutesModule } from './routes/routes.module';
         NODE_ENV: joi.string().valid('development', 'production', 'test', 'provision').default('production'),
         PORT: joi.number().default(3000)
       }),
-      load: [config],
       isGlobal: true
     }),
     TypeOrmModule.forRootAsync({

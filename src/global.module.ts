@@ -1,6 +1,5 @@
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { Global, Module, OnModuleInit, Optional } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { AxiosInstance } from 'axios';
 import {
   errorLogger,
@@ -30,11 +29,7 @@ const REQUEST_START_TIME = 'req-time';
 export class GlobalModule implements OnModuleInit {
   private readonly logRepo: Repository<VendorLog>;
 
-  constructor(
-    private readonly config: ConfigService,
-    private readonly http: HttpService,
-    @Optional() private readonly conn: DataSource
-  ) {
+  constructor(private readonly http: HttpService, @Optional() private readonly conn: DataSource) {
     if (this.conn) {
       this.logRepo = this.conn.getRepository(VendorLog);
     }
@@ -54,7 +49,6 @@ export class GlobalModule implements OnModuleInit {
         response.statusText = 'OK';
       }
       if (this.logRepo) {
-        const respText = JSON.stringify(response.data);
         this.logRepo.save({
           parameter: JSON.stringify(response.config.params ?? response.config.data),
           url: response.config.url,
@@ -63,7 +57,7 @@ export class GlobalModule implements OnModuleInit {
             new Date(),
             parse(response.config.headers[REQUEST_START_TIME].toString(), 'T', new Date())
           ),
-          content: respText.substring(0, this.config.get<number>('VENDOR_CONTENT_LENGTH'))
+          content: JSON.stringify(response.data)
         });
       }
       return responseLogger(response, { data: false });
