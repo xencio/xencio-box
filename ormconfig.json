@@ -1,10 +1,6 @@
 {
-  "type": "postgres",
-  "host": "localhost",
-  "port": 5432,
-  "username": "root",
-  "password": "MyNewPass4!",
-  "database": "mydb",
+  "type": "better-sqlite3",
+  "database": "./var/local.sqlite",
   "entityPrefix": "box_",
   "synchronize": true,
   "logging": false
