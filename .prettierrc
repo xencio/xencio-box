@@ -10,6 +10,6 @@
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
   "importOrderCaseInsensitive": true,
-  "importOrder": ["^@routes/(.*)$", "^[./]"],
+  "importOrder": ["^@(auth|routes)/(.*)$", "^[./]"],
   "importOrderParserPlugins": ["typescript", "classProperties", "decorators-legacy"]
 }
