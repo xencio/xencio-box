@@ -1,35 +1,22 @@
-import { ModuleMetadata, SetMetadata, Type } from '@nestjs/common';
+import { createParamDecorator, ExecutionContext, SetMetadata } from '@nestjs/common';
 
 // 无需认证的装饰器
 export const IS_PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
-// 注入模块的配置信息
-export const INJECT_MODULE_OPTIONS = 'AUTH_MODULE_OPTIONS';
 // 环境变量设置密钥的信息
 export const ENV_SECRET = 'AUTH_SECRET';
+// token变量名
+export const TOKEN_HEADER = 'x-xencio-box-token';
 
 export interface SiteUser {
   clientId: string; // 编号
+  canTransfer: boolean; // 是否允许转账
+  traceId?: string;
 }
 
-export interface SiteConfig {
-  clientId: string; // 编号
-  name: string; // 名称
-  publicKey: string; // 公钥
-  whitelist?: string[]; // 白名单
-}
+export const User = createParamDecorator((data: string, ctx: ExecutionContext) => {
+  const req = ctx.switchToHttp().getRequest();
+  const user = req.user;
 
-export interface ModuleOptions {
-  sites?: SiteConfig[];
-}
-
-export interface ModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
-  useExisting?: Type<OptionsFactory>;
-  useClass?: Type<OptionsFactory>;
-  useFactory?: (...args: any[]) => Promise<ModuleOptions> | ModuleOptions;
-  inject?: any[];
-}
-
-export interface OptionsFactory {
-  createOptions(): Promise<ModuleOptions> | ModuleOptions;
-}
+  return data ? user?.[data] : user;
+});
