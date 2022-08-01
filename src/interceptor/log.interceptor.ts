@@ -1,4 +1,4 @@
-import { CallHandler, ExecutionContext, HttpException, Injectable, NestInterceptor, Optional } from '@nestjs/common';
+import { CallHandler, ExecutionContext, HttpException, Injectable, NestInterceptor } from '@nestjs/common';
 import { differenceInMilliseconds } from 'date-fns';
 import { Request, Response } from 'express';
 import { Observable } from 'rxjs';
@@ -8,13 +8,11 @@ import { DataSource, Repository } from 'typeorm';
 import { AccessLog } from '../model/log.entity';
 
 @Injectable()
-export class DatabaseLogInterceptor implements NestInterceptor {
+export class LogInterceptor implements NestInterceptor {
   private readonly logRepo: Repository<AccessLog>;
 
-  constructor(@Optional() private readonly conn: DataSource) {
-    if (this.conn) {
-      this.logRepo = this.conn.getRepository(AccessLog);
-    }
+  constructor(conn: DataSource) {
+    this.logRepo = conn.getRepository(AccessLog);
   }
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
