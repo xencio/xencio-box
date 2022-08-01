@@ -1,10 +1,10 @@
 {
-  "name": "bank-box",
+  "name": "xencio-box",
   "version": "0.0.1",
   "description": "",
   "author": "Zheng Wentao",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "Apache License",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
