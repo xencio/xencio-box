@@ -8,7 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "target": "es2017",
     "sourceMap": true,
-    "outDir": "./dist",
+    "outDir": "./dist/xencio-box",
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
@@ -18,8 +18,9 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@auth/*": ["src/routes/auth/*"],
-      "@routes/*": ["src/routes/*"]
+      "@shared/*": ["src/shared/*"],
+      "@model/*": ["src/model/*"],
+      "@auth/*": ["src/routes/auth/*"]
     }
   }
 }
