@@ -1,66 +1,82 @@
-import { BadRequestException, Body, Controller, Get, Inject, Post, Req, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { verify } from 'crypto';
-import { addMinutes, differenceInMilliseconds, format } from 'date-fns';
-import { Request } from 'express';
-import { find } from 'lodash';
+import { addMinutes, differenceInSeconds, format } from 'date-fns';
+import { DataSource, Repository } from 'typeorm';
 
-import { INJECT_MODULE_OPTIONS, ModuleOptions, Public, SiteConfig } from '../auth.type';
-import { LoginParams } from './controller.request';
+import { SiteConfiguration } from '@model/client.entity';
+import { BOX_CODE } from '@shared/constant';
+
+import { Public, SiteUser, User } from '../auth.type';
+import { LoginParams, TransferLoginParams } from './controller.request';
+
+const enum OVERDUE_MINUTE { // 默认令牌过期时限
+  QUERY = 30,
+  TRANSFER = 5
+}
 
 @Controller('auth')
 export class AuthController {
-  private readonly OVERDUE_MINUTE = 120;
+  private readonly siteRepo: Repository<SiteConfiguration>;
 
-  constructor(
-    @Inject(INJECT_MODULE_OPTIONS) private readonly options: ModuleOptions,
-    private readonly jwtSrv: JwtService
-  ) {}
+  constructor(private readonly jwtSrv: JwtService, conn: DataSource) {
+    this.siteRepo = conn.getRepository(SiteConfiguration);
+  }
 
   @Public()
   @Post('login')
-  login(@Body() params: LoginParams) {
-    const siteInfo = this.getSiteInfo(params.clientId);
+  async login(@Body() params: LoginParams) {
+    const siteInfo = await this.getSiteInfo(params.clientId);
     return this.generateAccessToken(params, siteInfo);
   }
 
-  private getSiteInfo(clientId: string) {
-    const siteInfo = find(this.options.sites ?? [], site => site.clientId === clientId);
+  @Post('transfer')
+  async transferLogin(@Body() params: TransferLoginParams, @User() user: SiteUser) {
+    const siteInfo = await this.getSiteInfo(user.clientId);
+    return this.generateAccessToken(params, siteInfo, { transfer: true });
+  }
+
+  private async getSiteInfo(clientId: string) {
+    const siteInfo = await this.siteRepo.findOneBy({ clientId });
     if (!siteInfo) {
       throw new BadRequestException('No existing application from clientId.');
     }
     return siteInfo;
   }
 
-  private generateAccessToken(params: LoginParams, site: SiteConfig) {
+  private generateAccessToken(params: TransferLoginParams, site: SiteConfiguration, opts?: { transfer?: boolean }) {
     // 验证时间判断
-    const bottomDate = addMinutes(new Date(), -this.OVERDUE_MINUTE);
+    const overdueMinute = opts?.transfer
+      ? site.transferOverdue || OVERDUE_MINUTE.TRANSFER
+      : site.publicOverdue || OVERDUE_MINUTE.QUERY;
+    const bottomDate = addMinutes(new Date(), -overdueMinute);
     if (bottomDate >= params.timestamp) {
       throw new BadRequestException('Timestamp is overdue.');
     }
 
+    const publicKey = opts?.transfer ? site.transferPublicKey : site.publicKey;
     if (
-      !site.publicKey ||
+      !publicKey ||
       !verify(
         null,
-        Buffer.from(`${site.clientId}${format(params.timestamp, 'T')}`),
-        site.publicKey,
-        Buffer.from(params.signature, 'hex')
+        Buffer.from(`${site.clientId}${params.salt || ''}${format(params.timestamp, 'T')}`),
+        publicKey,
+        Buffer.from(params.signature, 'base64url')
       )
     ) {
-      throw new UnauthorizedException();
+      return BOX_CODE.PUBLIC_KEY_ERROR;
     }
 
     return {
       accessToken: this.jwtSrv.sign(
-        { clientId: site.clientId },
-        { expiresIn: differenceInMilliseconds(params.timestamp, bottomDate) }
+        { clientId: site.clientId, canTransfer: !!opts?.transfer },
+        { expiresIn: differenceInSeconds(params.timestamp, bottomDate) }
       )
     };
   }
 
   @Get('user')
-  userInfo(@Req() req: Request) {
-    return req.user;
+  userInfo(@User() user: SiteUser) {
+    return user;
   }
 }
