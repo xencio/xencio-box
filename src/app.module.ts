@@ -1,18 +1,24 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { setGlobalConfig as setAxiosLoggerGlobalConfig } from 'axios-logger';
 import * as fs from 'fs';
 import * as joi from 'joi';
 import * as path from 'path';
 
 import { AuthModule } from '@auth/auth.module';
 
-import { InitModuleException } from './app.exception';
-import { GlobalModule } from './global.module';
-import { DatabaseLogInterceptor } from './interceptor/log.interceptor';
+import { DataInterceptor } from './interceptor/data.interceptor';
+import { LogInterceptor } from './interceptor/log.interceptor';
 import { MorganMiddleware } from './middleware/morgan.middleware';
-import { RoutesModule } from './routes/routes.module';
+import { BankConnectionModule } from './routes/bank-connection/bank-connection.module';
+
+setAxiosLoggerGlobalConfig({
+  dateFormat: 'yyyy-mm-dd HH:MM:ss.l',
+  status: true,
+  statusText: true
+});
 
 @Module({
   imports: [
@@ -27,7 +33,7 @@ import { RoutesModule } from './routes/routes.module';
       useFactory: () => {
         const ormPath = path.resolve(process.cwd(), 'ormconfig.json');
         if (!fs.existsSync(ormPath)) {
-          throw new InitModuleException();
+          throw new Error('初始化模块失败，请检查模块代码');
         }
         const typeOptions: { [key: string]: any } = JSON.parse(fs.readFileSync(ormPath, 'utf-8'));
         const srcPath = path.relative(process.cwd(), __dirname);
@@ -35,23 +41,13 @@ import { RoutesModule } from './routes/routes.module';
         return { ...typeOptions, entities: [path.join(srcPath, 'model', '**', dbEntityFile)], autoLoadEntities: true };
       }
     }),
-    GlobalModule,
-    AuthModule.registerAsync({
-      useFactory: (configSrv: ConfigService) => {
-        const envPath = configSrv.get<string>('AUTH_CONFIG_PATH');
-        if (envPath) {
-          const configPath = path.resolve(process.cwd(), envPath);
-          if (fs.existsSync(configPath)) {
-            return { sites: JSON.parse(fs.readFileSync(configPath, 'utf-8')) };
-          }
-        }
-        return {};
-      },
-      inject: [ConfigService]
-    }),
-    RoutesModule
+    AuthModule,
+    BankConnectionModule
   ],
-  providers: [{ provide: APP_INTERCEPTOR, useClass: DatabaseLogInterceptor }]
+  providers: [
+    { provide: APP_INTERCEPTOR, useClass: LogInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: DataInterceptor }
+  ]
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
