@@ -9,7 +9,6 @@ import { Repository } from 'typeorm';
 import { TransferAuthGuard } from './bank-connection.guard';
 import { BankConnectionLog, BankConnectionOption } from './bank-connection.model';
 import { AccountController, TransferController } from './controller/bank-connection.controller';
-import { BOCService } from './service/boc/boc.service';
 
 const REQUEST_START_TIME = 'x-xencio-req-time';
 
@@ -19,7 +18,7 @@ const REQUEST_START_TIME = 'x-xencio-req-time';
     TypeOrmModule.forFeature([BankConnectionOption, BankConnectionLog])
   ],
   controllers: [AccountController, TransferController],
-  providers: [BOCService, TransferAuthGuard]
+  providers: [TransferAuthGuard]
 })
 export class BankConnectionModule {
   constructor(
