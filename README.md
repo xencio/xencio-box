@@ -35,7 +35,9 @@
 
 当前项目中包含了「中国银行」银企直联开源代码，如有关于其他银行银企直联接入、运行、维护等相关技术问题，可咨询见知银企通负责人。
 
-![image](https://github.com/user-attachments/assets/8b7e6aad-4c9e-44b3-a3bb-1a869d7f81dc)
+<p align="center">
+  <img src="contact-qrcode.png" alt="银企通销售顾问企业微信" width="200">
+</p>
 
 ## License
 
